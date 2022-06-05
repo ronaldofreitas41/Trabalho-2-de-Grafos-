@@ -4,7 +4,7 @@ from configparser import NoOptionError
 class NetworkProfessor:
 
     #Função Construtora da Network
-    def __init__(self, num_vert = 0, lista_adj = None, mat_adj = None , arestas = None, mat_cap = None, mat_weight = None, professores = None):
+    def __init__(self, num_vert = 0, lista_adj = None, mat_adj = None , arestas = None, mat_cap = None, mat_weight = None, list_b = None, professores = None):
 
         self.num_vert = num_vert
 
@@ -27,6 +27,13 @@ class NetworkProfessor:
 
         if mat_weight == None:
             self.mat_weight = [[0 for i in range(num_vert)] for j in range(num_vert)] 
+        else:
+            self.mat_weight = mat_weight
+
+        if list_b == None: #Oferta e Demanda
+            self.list_b = [0 for i in range(self.mat_adj)]
+        else:
+            self.list_b = list_b
 
         if arestas == None:
             self.arestas = [[]for _ in range(num_vert)]
@@ -40,8 +47,8 @@ class NetworkProfessor:
     def add_aresta(self, u, v, w = 1, c = 'inf'):
 
         self.arestas.append((u, v, w, c))
-        #self.mat_aeightdj[u][v].append(w)
-        #self.mataadjt_wej[u]].append(w)
+        #self.mat_adj[u][v].append(1)
+        #self.mat_weight[u]].append(w)
         #self.mat_weight[u]v].append(c)
 
 
@@ -142,10 +149,6 @@ class NetworkProfessor:
         except IOError:
             print("Nao foi possivel encontrar ou ler o arquivo!")
     
-    def scm(self,w,c,b,s,t):   
-       F = [[0 for i in range(len(self.mat_adj))] for j in range(len(self.mat_adj))]  
-       C = self.bellmanFord(s, t)
-       return
     def bellmanFord(self, s, t):
 
         dist = [ float("inf") for _ in range(self.num_vert) ]
@@ -170,3 +173,43 @@ class NetworkProfessor:
         #-------------------------------------------------------------------------------
 
         return dist,pred
+
+    def scm(self, s, t):
+
+        F = [[0 for i in range(len(self.mat_adj))] for j in range(len(self.mat_adj))]
+        C = self.bellmanFord(s, t)
+
+        while len(C) != 0 and self.list_b[s] != 0:
+
+            f = float('inf')
+
+            for i in range(1, len(C)):
+                u = C[i - 1]
+                v = C[i]
+
+                if self.mat_cap[u][v] < f:
+                    f = self.mat_cap[u][v]
+
+            for i in range(1, len(C)):
+                u = C[i - 1]
+                v = C[i]
+
+                F[u][v] += f
+                self.mat_cap[u][v] -= f
+                self.mat_cap[v][u] += f
+
+                self.list_b[s] -= f
+                self.list_b[t] += f
+
+                if self.mat_cap == 0:
+                    self.mat_adj[u][v] = 0
+                    self.arestas.remove((u, v, self.mat_weight[u][v])) #Verificar esta linha
+                
+                if self.mat_adj[v][u] == 0:
+                    self.mat_adj[v][u] = 1
+                    self.arestas.append((v, u, -self.mat_weight[u][v]))#Verificar esta linha
+                    self.mat_weight[v][u] = -(self.mat_weight[u][v])
+                
+            C = self.bellmanFord(s, t)
+        
+        return F
