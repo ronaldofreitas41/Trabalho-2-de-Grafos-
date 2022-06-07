@@ -31,7 +31,7 @@ class NetworkProfessor:
             self.mat_weight = mat_weight
 
         if list_b == None: #Oferta e Demanda
-            self.list_b = [0 for i in range(self.mat_adj)]
+            self.list_b = [[] for i in range(num_vert)]
         else:
             self.list_b = list_b
 
@@ -48,10 +48,11 @@ class NetworkProfessor:
 
         self.arestas.append((u, v, w, c))
         #self.mat_adj[u][v].append(1)
-        #self.mat_weight[u]].append(w)
-        #self.mat_weight[u]v].append(c)
+        #self.mat_weight[u][v].append(w)
+        #self.mat_capacity[u][v].append(c)
 
-
+    def criaDic(self,key,valor):#Função pra criar o dicionario de professores e de disciplinas com SO e SD
+        return 
     #-------------------------------------------------------------------------------
     #Função criada para remover uma aresta do vértice u ao vértice v (caso exista)
     #-------------------------------------------------------------------------------
@@ -92,45 +93,59 @@ class NetworkProfessor:
             #-------------------------------------------------------------------------------
             str = arq.readline()
             str = str.split(";")
+            key = 1
             
-            lines = int(len(arq2.read().split(";"))/6) - 1#Quantidade de linhas sem o cabeçalho 
-
+            lines = int(len(arq2.read().split(";"))/6) - 1#Quantidade de linhas sem o cabeçalho     
+            print("lines =>",lines, "\n")
 
             #-------------------------------------------------------------------------------
             #Inicialização da Estrutura de Dados
             #-------------------------------------------------------------------------------
-            sum = 0
-            for _ in range(lines - 1):
+            for x in range (lines):
                 self.num_vert+=1
 
                 str = arq.readline()
                 str = str.split(";")
+                superoferta = None
                 
-                p = str[0]
-                c = int(str[1])
+
+                if x < lines-1:
+                    print("key => ",key,"do Arquivo")
+                    print("str =", str,"\n")
+                    p = str[0]
+                    c = int(str[1])
+                    
+                    p1 = str[2]
+                    self.add_aresta(p,p1,0)
+                    
+                    p2 = str[3]
+                    self.add_aresta(p,p2,3)
+
+                    p3 = str[4]
+                    self.add_aresta(p,p3,5)
+
+                    if str[5] != '':#Isso pois nem todos professores podem lecionar mais de 3 disciplinas
+                        p4 = str[5]
+                        self.add_aresta(p,p4,8)
+
+                    if str[6] != '' and str[6] != '\n':#Isso pois nem todos professores podem lecionar mais de 3 disciplinas
+                        str[6] = str[6].split('\n')# split pra nao inserir o \n do arquivo na aresta
+                        p5 = str[6][0]
+                        self.add_aresta(p,p5,10)
+                    key+= 1
+                else:
+                    superoferta = int(str[1])
+                    key = 0
+                    print("Key do SuperOferta=>",key,"\n")
+                    
                 
-                sum += c
-                p1 = str[2]
-                self.add_aresta(p,p1,0)
-                
-                p2 = (str[3],3)
-                self.add_aresta(p,p2,3)
 
-                p3 = (str[4],5)
-                self.add_aresta(p,p3,5)
-
-                if len(str) > 5:#Isso pois nem todos professores podem lecionar mais de 3 disciplinas
-                    p4 = (str[5],8)
-                    self.add_aresta(p,p4,0)
-
-                if len(str) > 6:#Isso pois nem todos professores podem lecionar mais de 3 disciplinas
-                    p5 = (str[6],10)
-                    self.add_aresta(p,p5,10)
             #-------------------------------------------------------------------------------------------
-            print("s1 =>", sum)
+            
             str = arq3.readline()
             str = str.split(";")
-            sum  = 0
+            key+=lines
+            print("key depois do For = ", key)
             lines = int(len(arq4.read().split(";"))/2) - 1#Quantidade de linhas sem o cabeçalho 
             #---------------------------------------------------------------------------------------------
             for _ in range(lines - 1):
@@ -142,8 +157,8 @@ class NetworkProfessor:
                 c =  str[0]
                 n =  str[1]
                 q =  int(str[2])
-                sum+=q
-                print("s2 =>", sum)
+
+                
 
 
         except IOError:

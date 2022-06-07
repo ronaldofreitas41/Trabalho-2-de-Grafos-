@@ -1,5 +1,4 @@
 import NetworkProfessor as prof
-import NetworkDisciplina as disc
 
 #nomeProf = input("Informe o nome do arquivo de professores: Ex:Nome.csv\n")
 #nomeDisc = input("Informe o nome do arquivo de disciplinas: Ex:Nome.csv\n")
