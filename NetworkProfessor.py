@@ -5,6 +5,7 @@ class NetworkProfessor:
 
     #Função Construtora da Network
     def __init__(self, num_vert = 0, lista_adj = None, mat_adj = None , arestas = None, mat_cap = None, mat_weight = None, list_b = None, professores = None):
+        self.dic = {}
 
         self.num_vert = num_vert
 
@@ -51,8 +52,10 @@ class NetworkProfessor:
         #self.mat_weight[u][v].append(w)
         #self.mat_capacity[u][v].append(c)
 
-    def criaDic(self,key,valor):#Função pra criar o dicionario de professores e de disciplinas com SO e SD
-        return 
+    def addDic(self,key,valor):#Função pra criar o dicionario de professores e de disciplinas com SO e SD
+        
+        self.dic[key] = valor 
+         
     #-------------------------------------------------------------------------------
     #Função criada para remover uma aresta do vértice u ao vértice v (caso exista)
     #-------------------------------------------------------------------------------
@@ -132,10 +135,12 @@ class NetworkProfessor:
                         str[6] = str[6].split('\n')# split pra nao inserir o \n do arquivo na aresta
                         p5 = str[6][0]
                         self.add_aresta(p,p5,10)
+                    self.addDic(key,p)
                     key+= 1
                 else:
                     superoferta = int(str[1])
                     key = 0
+                    self.addDic(key,superoferta)
                     print("Key do SuperOferta=>",key,"\n")
                     
                 
