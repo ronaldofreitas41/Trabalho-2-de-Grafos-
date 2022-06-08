@@ -1,3 +1,4 @@
+from calendar import c
 from configparser import NoOptionError
 
 
@@ -6,6 +7,8 @@ class NetworkProfessor:
     #Função Construtora da Network
     def __init__(self, num_vert = 0, lista_adj = None, mat_adj = None , arestas = None, mat_cap = None, mat_weight = None, list_b = None, professores = None):
         self.dic = {}
+        self.infosProfessores = []
+        self.infosDisciplinas = []
 
         self.num_vert = num_vert
 
@@ -53,7 +56,7 @@ class NetworkProfessor:
         #self.mat_capacity[u][v].append(c)
 
     def addDic(self, key, valor):#Função pra criar o dicionario de professores e de disciplinas com SO e SD
-        self.dic[key] = valor 
+        self.dic[valor] = key 
          
     #-------------------------------------------------------------------------------
     #Função criada para remover uma aresta do vértice u ao vértice v (caso exista)
@@ -83,133 +86,53 @@ class NetworkProfessor:
     #-------------------------------------------------------------------------------
     #Função criada para ler um arquivo no formato DIMACS
     #-------------------------------------------------------------------------------
-  
-    def ler_arquivo(self, nome_arqprof, nomearqdisc):
+    def makeNelsonSemedoFamosoJogadordoWolves(self):#metodo pra criar a rede
+        cont = 0 
+        for x in range(len(self.infosProfessores)):
+            self.addDic(self.infosProfessores[0],x)
+            cont+=x
+
+        for _ in range(len(self.infosDisciplinas)):
+            self.addDic(self.infosProfessores[0],cont)
+
+    def ler_arquivo(self, nome_arqprof, nome_arqdisc):
         try:
             arq = open(nome_arqprof)
-            arq2 = open(nome_arqprof)#arquivo com a função unica de servir pra contar as linhas(ver se tem otimização disso)
-            arq3 = open(nomearqdisc)
-            arq4 = open(nomearqdisc)#arquivo com a função unica de servir pra contar as linhas(ver se tem otimização disso)
+            arq2 = open(nome_arqprof)#arquivo com a função unica de servir pra contar as linhas
+            
             
             #Leitura do cabeçalho
             #-------------------------------------------------------------------------------
             str = arq.readline()
             str = str.split(";")
-            key = 1
-            
             lines = int(len(arq2.read().split(";"))/6) - 1#Quantidade de linhas sem o cabeçalho     
-            print("lines =>",lines, "\n")
-
             #-------------------------------------------------------------------------------
             #Inicialização da Estrutura de Dados
             #-------------------------------------------------------------------------------
             
-            for x in range (lines):
+            for _ in range (lines):
                 self.num_vert+=1
 
                 str = arq.readline()
                 str = str.split(";")
-                superoferta = None
-                superDemanda = None
-
-                if x < lines-1:
-                    print("dic =>", self.dic, "\n")
-                    p = str[0]
-                    
-                    self.addDic(key,p)
-                    key+= 1
-                else:
-                    superoferta = int(str[1])
-                    key = 0
-                    self.addDic(key,superoferta)
-                    print("Dicionario com SuperOferta =>", self.dic, "\n")   
+                self.infosProfessores.append(str)
+                print("Infos Professores => ", self.infosProfessores)
+    
             #-------------------------------------------------------------------------------------------
-            str = arq3.readline()
+            arq = open(nome_arqdisc)
+            arq2 = open(nome_arqdisc)#arquivo com a função unica de servir pra contar as linhas
+            str = arq.readline()
             str = str.split(";")
-            key+=lines
-            print("key depois do For = ", key)
-            lines = int(len(arq4.read().split(";"))/2) - 1#Quantidade de linhas sem o cabeçalho 
+            lines = int(len(arq2.read().split(";"))/2) - 1#Quantidade de linhas sem o cabeçalho 
             #---------------------------------------------------------------------------------------------
-            for x in range(lines):
+            
+            for _ in range(lines):
                 self.num_vert+=1
 
                 str = arq3.readline()
                 str = str.split(";")
-
-                if x < lines - 1:
-                    self.addDic(key, str[0])
-                    print(self.dic, "\n")
-                else:
-                    str[2] = str[2].split('\n')
-                    superDemanda = int(str[2][0])
-                    self.addDic(key, -superDemanda)
-                    print(self.dic, "\n")
-                
-                key += 1
-                
-            # for x in range (lines):
-            #     self.num_vert+=1
-
-            #     str = arq.readline()
-            #     str = str.split(";")
-            #     superoferta = None
-                
-
-            #     if x < lines-1:
-            #         print("key => ",key,"do Arquivo")
-            #         print("str =", str,"\n")
-            #         print("dic =>", self.dic, "\n")
-            #         p = str[0]
-            #         c = int(str[1])
-                    
-            #         p1 = str[2]
-            #         self.add_aresta(p,p1,0)
-                    
-            #         p2 = str[3]
-            #         self.add_aresta(p,p2,3)
-
-            #         p3 = str[4]
-            #         self.add_aresta(p,p3,5)
-
-            #         if str[5] != '':#Isso pois nem todos professores podem lecionar mais de 3 disciplinas
-            #             p4 = str[5]
-            #             self.add_aresta(p,p4,8)
-
-            #         if str[6] != '' and str[6] != '\n':#Isso pois nem todos professores podem lecionar mais de 3 disciplinas
-            #             str[6] = str[6].split('\n')# split pra nao inserir o \n do arquivo na aresta
-            #             p5 = str[6][0]
-            #             self.add_aresta(p,p5,10)
-            #         self.addDic(key,p)
-            #         key+= 1
-            #     else:
-            #         superoferta = int(str[1])
-            #         key = 0
-            #         self.addDic(key,superoferta)
-            #         print("Key do SuperOferta=>",key,"\n")
-            #         print("Dicionario com SuperOferta =>", self.dic, "\n")
-                    
-                
-
-            # #-------------------------------------------------------------------------------------------
-            
-            # str = arq3.readline()
-            # str = str.split(";")
-            # key+=lines
-            # print("key depois do For = ", key)
-            # lines = int(len(arq4.read().split(";"))/2) - 1#Quantidade de linhas sem o cabeçalho 
-            # #---------------------------------------------------------------------------------------------
-            # for _ in range(lines - 1):
-            #     self.num_vert+=1
-
-            #     str = arq3.readline()
-            #     str = str.split(";")
-                
-            #     c =  str[0]
-            #     n =  str[1]
-            #     q =  int(str[2])
-
-                
-
+                self.infosDisciplinas.append(str)
+                print("Infos Disciplinas => ", self.infosDisciplinas)
 
         except IOError:
             print("Nao foi possivel encontrar ou ler o arquivo!")
