@@ -52,8 +52,7 @@ class NetworkProfessor:
         #self.mat_weight[u][v].append(w)
         #self.mat_capacity[u][v].append(c)
 
-    def addDic(self,key,valor):#Função pra criar o dicionario de professores e de disciplinas com SO e SD
-        
+    def addDic(self, key, valor):#Função pra criar o dicionario de professores e de disciplinas com SO e SD
         self.dic[key] = valor 
          
     #-------------------------------------------------------------------------------
@@ -104,64 +103,110 @@ class NetworkProfessor:
             #-------------------------------------------------------------------------------
             #Inicialização da Estrutura de Dados
             #-------------------------------------------------------------------------------
+            
             for x in range (lines):
                 self.num_vert+=1
 
                 str = arq.readline()
                 str = str.split(";")
                 superoferta = None
-                
+                superDemanda = None
 
                 if x < lines-1:
-                    print("key => ",key,"do Arquivo")
-                    print("str =", str,"\n")
+                    print("dic =>", self.dic, "\n")
                     p = str[0]
-                    c = int(str[1])
                     
-                    p1 = str[2]
-                    self.add_aresta(p,p1,0)
-                    
-                    p2 = str[3]
-                    self.add_aresta(p,p2,3)
-
-                    p3 = str[4]
-                    self.add_aresta(p,p3,5)
-
-                    if str[5] != '':#Isso pois nem todos professores podem lecionar mais de 3 disciplinas
-                        p4 = str[5]
-                        self.add_aresta(p,p4,8)
-
-                    if str[6] != '' and str[6] != '\n':#Isso pois nem todos professores podem lecionar mais de 3 disciplinas
-                        str[6] = str[6].split('\n')# split pra nao inserir o \n do arquivo na aresta
-                        p5 = str[6][0]
-                        self.add_aresta(p,p5,10)
                     self.addDic(key,p)
                     key+= 1
                 else:
                     superoferta = int(str[1])
                     key = 0
                     self.addDic(key,superoferta)
-                    print("Key do SuperOferta=>",key,"\n")
-                    
-                
-
+                    print("Dicionario com SuperOferta =>", self.dic, "\n")   
             #-------------------------------------------------------------------------------------------
-            
             str = arq3.readline()
             str = str.split(";")
             key+=lines
             print("key depois do For = ", key)
             lines = int(len(arq4.read().split(";"))/2) - 1#Quantidade de linhas sem o cabeçalho 
             #---------------------------------------------------------------------------------------------
-            for _ in range(lines - 1):
+            for x in range(lines):
                 self.num_vert+=1
 
                 str = arq3.readline()
                 str = str.split(";")
+
+                if x < lines - 1:
+                    self.addDic(key, str[0])
+                    print(self.dic, "\n")
+                else:
+                    str[2] = str[2].split('\n')
+                    superDemanda = int(str[2][0])
+                    self.addDic(key, -superDemanda)
+                    print(self.dic, "\n")
                 
-                c =  str[0]
-                n =  str[1]
-                q =  int(str[2])
+                key += 1
+                
+            # for x in range (lines):
+            #     self.num_vert+=1
+
+            #     str = arq.readline()
+            #     str = str.split(";")
+            #     superoferta = None
+                
+
+            #     if x < lines-1:
+            #         print("key => ",key,"do Arquivo")
+            #         print("str =", str,"\n")
+            #         print("dic =>", self.dic, "\n")
+            #         p = str[0]
+            #         c = int(str[1])
+                    
+            #         p1 = str[2]
+            #         self.add_aresta(p,p1,0)
+                    
+            #         p2 = str[3]
+            #         self.add_aresta(p,p2,3)
+
+            #         p3 = str[4]
+            #         self.add_aresta(p,p3,5)
+
+            #         if str[5] != '':#Isso pois nem todos professores podem lecionar mais de 3 disciplinas
+            #             p4 = str[5]
+            #             self.add_aresta(p,p4,8)
+
+            #         if str[6] != '' and str[6] != '\n':#Isso pois nem todos professores podem lecionar mais de 3 disciplinas
+            #             str[6] = str[6].split('\n')# split pra nao inserir o \n do arquivo na aresta
+            #             p5 = str[6][0]
+            #             self.add_aresta(p,p5,10)
+            #         self.addDic(key,p)
+            #         key+= 1
+            #     else:
+            #         superoferta = int(str[1])
+            #         key = 0
+            #         self.addDic(key,superoferta)
+            #         print("Key do SuperOferta=>",key,"\n")
+            #         print("Dicionario com SuperOferta =>", self.dic, "\n")
+                    
+                
+
+            # #-------------------------------------------------------------------------------------------
+            
+            # str = arq3.readline()
+            # str = str.split(";")
+            # key+=lines
+            # print("key depois do For = ", key)
+            # lines = int(len(arq4.read().split(";"))/2) - 1#Quantidade de linhas sem o cabeçalho 
+            # #---------------------------------------------------------------------------------------------
+            # for _ in range(lines - 1):
+            #     self.num_vert+=1
+
+            #     str = arq3.readline()
+            #     str = str.split(";")
+                
+            #     c =  str[0]
+            #     n =  str[1]
+            #     q =  int(str[2])
 
                 
 
