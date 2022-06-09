@@ -12,7 +12,7 @@ class NetworkProfessor:
 
         self.num_vert = num_vert
 
-        #Verificações acerca das srestas e Lista de Adjacencias
+        #Verificações acerca das arestas e Lista de Adjacencias
         #-------------------------------------------------------------------------------
         if lista_adj == None:
             self.lista_adj = [[]for _ in range(num_vert)]
@@ -51,11 +51,11 @@ class NetworkProfessor:
     def add_aresta(self, u, v, w = 1, c = 'inf'):
 
         self.arestas.append((u, v, w, c))
-        #self.mat_adj[u][v].append(1)
+        self.mat_adj[u][v].append(1)
         #self.mat_weight[u][v].append(w)
         #self.mat_capacity[u][v].append(c)
 
-    def addDic(self, key, valor):#Função pra criar o dicionario de professores e de disciplinas com SO e SD
+    def addDic(self, valor, key):#Função pra criar o dicionario de professores e de disciplinas com SO e SD
         self.dic[valor] = key 
          
     #-------------------------------------------------------------------------------
@@ -83,32 +83,45 @@ class NetworkProfessor:
         else:
             print("Aresta invalida!")
     
-    #-------------------------------------------------------------------------------
-    #Função criada para ler um arquivo no formato DIMACS
-    #-------------------------------------------------------------------------------
+    #Função para Criar o Dicionário e gerar a Network
     def makeNelsonSemedoFamosoJogadordoWolves(self):#metodo pra criar a rede
         cont = 0 
-        for x in range(len(self.infosProfessores)):
-            self.addDic(self.infosProfessores[0],x)
-            cont+=x
-
-        for _ in range(len(self.infosDisciplinas)):
-            self.addDic(self.infosProfessores[0],cont)
-
+        self.infosProfessores[-1][1] = int(self.infosProfessores[-1][1])
+        self.addDic(self.infosProfessores[-1][1], cont)
+        cont += 1
+        for x in range(len(self.infosProfessores) - 1):
+            self.addDic(self.infosProfessores[x][0], cont)
+            cont += 1
+        
+        for x in range(len(self.infosDisciplinas) - 1): 
+            self.addDic(self.infosDisciplinas[x][0],cont)
+            cont += 1
+            
+        
+        self.infosDisciplinas[-1][2] = - int(self.infosDisciplinas[-1][2])
+        self.addDic(self.infosDisciplinas[-1][2], cont)
+        # print(self.dic)
+        
+        #Gerar Network
+        #1 - Ligação do SuperOferta
+        for x in range(len(self.infosProfessores) - 1):
+            self.add_aresta(self.dic[self.infosProfessores[-1][1]], self.dic[self.infosProfessores[x][0]], 0, self.infosProfessores[x][1])
+            print(self.arestas)
+        print(len(self.mat_adj))
+    #-------------------------------------------------------------------------------
+    #Função criada para ler um arquivo no formato CSV
+    #-------------------------------------------------------------------------------
     def ler_arquivo(self, nome_arqprof, nome_arqdisc):
         try:
+            
+            #Leitura do Arquivo de Professores
+            #-------------------------------------------------------------------------------
             arq = open(nome_arqprof)
             arq2 = open(nome_arqprof)#arquivo com a função unica de servir pra contar as linhas
-            
-            
-            #Leitura do cabeçalho
-            #-------------------------------------------------------------------------------
+
             str = arq.readline()
             str = str.split(";")
-            lines = int(len(arq2.read().split(";"))/6) - 1#Quantidade de linhas sem o cabeçalho     
-            #-------------------------------------------------------------------------------
-            #Inicialização da Estrutura de Dados
-            #-------------------------------------------------------------------------------
+            lines = int(len(arq2.read().split(";"))/6) - 1 #Quantidade de linhas sem o cabeçalho     
             
             for _ in range (lines):
                 self.num_vert+=1
@@ -116,23 +129,29 @@ class NetworkProfessor:
                 str = arq.readline()
                 str = str.split(";")
                 self.infosProfessores.append(str)
-                print("Infos Professores => ", self.infosProfessores)
     
+            #Leitura do Arquivo de Disciplinas
             #-------------------------------------------------------------------------------------------
             arq = open(nome_arqdisc)
             arq2 = open(nome_arqdisc)#arquivo com a função unica de servir pra contar as linhas
+
             str = arq.readline()
             str = str.split(";")
-            lines = int(len(arq2.read().split(";"))/2) - 1#Quantidade de linhas sem o cabeçalho 
-            #---------------------------------------------------------------------------------------------
-            
+            lines = int(len(arq2.read().split(";"))/2) - 1 #Quantidade de linhas sem o cabeçalho 
+           
             for _ in range(lines):
                 self.num_vert+=1
 
-                str = arq3.readline()
+                str = arq.readline()
                 str = str.split(";")
                 self.infosDisciplinas.append(str)
-                print("Infos Disciplinas => ", self.infosDisciplinas)
+
+            # print(self.infosDisciplinas)
+            # print(self.infosProfessores)
+            self.mat_weight = [[0 for i in range(self.num_vert)] for j in range(self.num_vert)]
+            self.mat_cap = [[0 for i in range(self.num_vert)] for j in range(self.num_vert)]
+            self.mat_adj = [[0 for i in range(self.num_vert)] for j in range(self.num_vert)]
+            self.makeNelsonSemedoFamosoJogadordoWolves()
 
         except IOError:
             print("Nao foi possivel encontrar ou ler o arquivo!")
