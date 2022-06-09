@@ -51,7 +51,8 @@ class NetworkProfessor:
     def add_aresta(self, u, v, w = 1, c = 'inf'):
 
         self.arestas.append((u, v, w, c))
-        self.mat_adj[u][v].append(1)
+        print(self.arestas)
+        #self.mat_adj[u][v].append(1)
         #self.mat_weight[u][v].append(w)
         #self.mat_capacity[u][v].append(c)
 
@@ -107,7 +108,7 @@ class NetworkProfessor:
         for x in range(len(self.infosProfessores) - 1):
             self.add_aresta(self.dic[self.infosProfessores[-1][1]], self.dic[self.infosProfessores[x][0]], 0, self.infosProfessores[x][1])
             print(self.arestas)
-        print(len(self.mat_adj))
+        
     #-------------------------------------------------------------------------------
     #Função criada para ler um arquivo no formato CSV
     #-------------------------------------------------------------------------------
@@ -148,15 +149,12 @@ class NetworkProfessor:
 
             # print(self.infosDisciplinas)
             # print(self.infosProfessores)
-            self.mat_weight = [[0 for i in range(self.num_vert)] for j in range(self.num_vert)]
-            self.mat_cap = [[0 for i in range(self.num_vert)] for j in range(self.num_vert)]
-            self.mat_adj = [[0 for i in range(self.num_vert)] for j in range(self.num_vert)]
             self.makeNelsonSemedoFamosoJogadordoWolves()
 
         except IOError:
             print("Nao foi possivel encontrar ou ler o arquivo!")
     
-    def bellmanFord(self, s, t):
+    def bellmanFord(self, s):
 
         dist = [ float("inf") for _ in range(self.num_vert) ]
         pred = [None for _ in range(self.num_vert)]

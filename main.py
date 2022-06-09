@@ -4,5 +4,5 @@ import NetworkProfessor as prof
 #nomeDisc = input("Informe o nome do arquivo de disciplinas: Ex:Nome.csv\n")
 
 professor = prof.NetworkProfessor()
-
 professor.ler_arquivo("professores.csv", "disciplinas.csv")
+print("Listas de Arestas =>", professor.arestas)
