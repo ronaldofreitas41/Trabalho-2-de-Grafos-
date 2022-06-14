@@ -9,6 +9,8 @@ class NetworkProfessor:
         self.dic = {}
         self.infosProfessores = []
         self.infosDisciplinas = []
+        self.s = 0
+        self.t = 0
 
         self.num_vert = num_vert
 
@@ -39,6 +41,11 @@ class NetworkProfessor:
         else:
             self.arestas = arestas
 
+        if list_b == None: #Oferta e Demanda
+            self.list_b = [[] for i in range(num_vert)]
+        else:
+            self.list_b = list_b
+
   
     #função pra preencher as matrizes com 0
     def criaMats(self):
@@ -52,7 +59,6 @@ class NetworkProfessor:
     def add_aresta(self, u, v, w = 1, c = 'inf'):
 
         self.arestas.append((u, v, w, c))
-        print(u,v)
         self.mat_adj[u][v] = 1
         self.mat_weight[u][v] = w
         self.mat_cap[u][v] = c
@@ -87,8 +93,9 @@ class NetworkProfessor:
     
     #Função para Criar o Dicionário e gerar a Network
     def makeNetwork(self):
-        cont = 0 
-        self.infosProfessores[-1][1] = int(self.infosProfessores[-1][1])
+        cont = 0
+        self.s = int(self.infosProfessores[-1][1])
+        self.infosProfessores[-1][1] = self.s
         self.addDic(self.infosProfessores[-1][1], cont)
         cont += 1
         for x in range(len(self.infosProfessores)-1):
@@ -105,7 +112,6 @@ class NetworkProfessor:
 
         self.num_vert = len(self.dic)
         self.criaMats()
-        print(self.dic)
         #Gerar Network
         #1 - Ligação do SuperOferta
         for x in range(len(self.infosProfessores)-1):
@@ -133,6 +139,10 @@ class NetworkProfessor:
         #Ligação Discuplina-> superdemanda
         for x in range(len(self.infosDisciplinas)-1):
             self.add_aresta(self.dic[self.infosDisciplinas[x][0]], self.dic[self.infosDisciplinas[len(self.infosDisciplinas)-1][2]], 0, int(self.infosDisciplinas[x][2]))
+        self.t = int(self.infosDisciplinas[-1][2])
+        self.list_b.append(self.s)
+        self.list_b.append(self.t)
+        
     #-------------------------------------------------------------------------------
     #Função criada para ler um arquivo no formato CSV
     
@@ -177,7 +187,7 @@ class NetworkProfessor:
         except IOError:
             print("Nao foi possivel encontrar ou ler o arquivo!")
     
-    def bellmanFord(self, s):
+    def bellmanFord(self, s, t):
 
         dist = [ float("inf") for _ in range(self.num_vert) ]
         pred = [None for _ in range(self.num_vert)]
@@ -187,7 +197,7 @@ class NetworkProfessor:
         for _ in range(self.num_vert - 1):
             trocou = False
 
-            for (u,v,w) in self.arestas:
+            for (u,v,w,c) in self.arestas:
 
                 if dist[v] >  dist[u]+w:
                     dist[v] = dist[u]+w
@@ -201,11 +211,25 @@ class NetworkProfessor:
         #-------------------------------------------------------------------------------
 
         return dist,pred
+    def geraCaminho(self,retornos,end):#converte o retorno de bellman ford em um caminho com postos opr arestas uv
+        C = []
+        u = retornos[1][end]
+        C.append((u,end))
+        v = u
+        while(u != None):
+            u = retornos[1][u]
+            if(u == None):
+                break
+            C.append((u,v))
 
+        C = list(reversed(C))
+        print("C = ",C)
+        return C
     def scm(self, s, t):
 
         F = [[0 for i in range(len(self.mat_adj))] for j in range(len(self.mat_adj))]
-        C = self.bellmanFord(s, t)
+        retornos = self.bellmanFord(s, t)
+        C = self.geraCaminho(retornos,t)
 
         while len(C) != 0 and self.list_b[s] != 0:
 

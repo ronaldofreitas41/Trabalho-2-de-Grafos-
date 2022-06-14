@@ -1,3 +1,4 @@
+from this import s
 import NetworkProfessor as prof
 
 #nomeProf = input("Informe o nome do arquivo de professores: Ex:Nome.csv\n")
@@ -5,4 +6,6 @@ import NetworkProfessor as prof
 
 professor = prof.NetworkProfessor()
 professor.ler_arquivo("professores_toy.csv", "disciplinas_toy.csv")
-print("Listas de Arestas =>", professor.arestas)
+
+
+print("SCM", professor.scm(professor.dic[professor.s],professor.dic[professor.t]))
