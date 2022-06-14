@@ -20,41 +20,41 @@ class NetworkProfessor:
             self.lista_adj = lista_adj
 
         if mat_adj == None:
-            self.mat_adj = [[0 for i in range(num_vert)] for j in range(num_vert)] 
+            self.mat_adj = [[0 for _ in range(num_vert)] for j in range(num_vert)] 
         else:                                         
             self.mat_adj = mat_adj
 
         if mat_cap == None:
-            self.mat_cap = [[0 for i in range(num_vert)] for j in range(num_vert)] 
+            self.mat_cap = [[0 for _ in range(num_vert)] for j in range(num_vert)] 
         else:                                         
             self.mat_cap = mat_cap
 
         if mat_weight == None:
-            self.mat_weight = [[0 for i in range(num_vert)] for j in range(num_vert)] 
+            self.mat_weight = [[0 for _ in range(num_vert)] for j in range(num_vert)] 
         else:
             self.mat_weight = mat_weight
-
-        if list_b == None: #Oferta e Demanda
-            self.list_b = [[] for i in range(num_vert)]
-        else:
-            self.list_b = list_b
 
         if arestas == None:
             self.arestas = [[]for _ in range(num_vert)]
         else:
             self.arestas = arestas
 
+  
+    #função pra preencher as matrizes com 0
+    def criaMats(self):
+        self.mat_cap = [[0 for _ in range(self.num_vert)] for _ in range(self.num_vert)]
+        self.mat_adj = [[0 for _ in range(self.num_vert)] for _ in range(self.num_vert)]
+        self.mat_weight = [[0 for _ in range(self.num_vert)] for _ in range(self.num_vert)]
+
   #-------------------------------------------------------------------------------
   #Função criada para adicionar aresta com valor default (1) do vértice u ao vértice v
   #-------------------------------------------------------------------------------
-  
     def add_aresta(self, u, v, w = 1, c = 'inf'):
 
         self.arestas.append((u, v, w, c))
-        print(self.arestas)
-        #self.mat_adj[u][v].append(1)
-        #self.mat_weight[u][v].append(w)
-        #self.mat_capacity[u][v].append(c)
+        self.mat_adj[u][v] = 1
+        self.mat_weight[u][v] = w
+        self.mat_cap[u][v] = c
 
     def addDic(self, valor, key):#Função pra criar o dicionario de professores e de disciplinas com SO e SD
         self.dic[valor] = key 
@@ -85,30 +85,53 @@ class NetworkProfessor:
             print("Aresta invalida!")
     
     #Função para Criar o Dicionário e gerar a Network
-    def makeNelsonSemedoFamosoJogadordoWolves(self):#metodo pra criar a rede
+    def makeNetwork(self):
         cont = 0 
         self.infosProfessores[-1][1] = int(self.infosProfessores[-1][1])
         self.addDic(self.infosProfessores[-1][1], cont)
         cont += 1
-        for x in range(len(self.infosProfessores) - 1):
+        for x in range(len(self.infosProfessores)):
             self.addDic(self.infosProfessores[x][0], cont)
             cont += 1
         
-        for x in range(len(self.infosDisciplinas) - 1): 
+        for x in range(len(self.infosDisciplinas)): 
             self.addDic(self.infosDisciplinas[x][0],cont)
             cont += 1
             
         
         self.infosDisciplinas[-1][2] = - int(self.infosDisciplinas[-1][2])
         self.addDic(self.infosDisciplinas[-1][2], cont)
-        # print(self.dic)
-        
+
+        self.num_vert = len(self.dic)
+        self.criaMats()
+
         #Gerar Network
         #1 - Ligação do SuperOferta
-        for x in range(len(self.infosProfessores) - 1):
+        for x in range(len(self.infosProfessores)):
             self.add_aresta(self.dic[self.infosProfessores[-1][1]], self.dic[self.infosProfessores[x][0]], 0, self.infosProfessores[x][1])
-            print(self.arestas)
-        
+           
+        #Ligação Professor -> disciplina
+        for x in range(len(self.infosProfessores)):
+            cont = 2
+            for _ in range(5):#5 poie é o maximo de disciplinas alocadas a um professor
+                match cont:
+                    case 2:#Preferencia 1
+                        self.add_aresta(self.dic[self.infosProfessores[x][0]], self.dic[self.infosProfessores[x][cont]],0)
+                    case 3:#Preferencia 2
+                        self.add_aresta(self.dic[self.infosProfessores[x][0]], self.dic[self.infosProfessores[x][cont]],3)
+                    case 4:#Preferencia 3
+                        self.add_aresta(self.dic[self.infosProfessores[x][0]], self.dic[self.infosProfessores[x][cont]],5)
+                    case 5:#Preferencia 4
+                        if(self.infosProfessores[x][cont]!= ''):
+                            self.add_aresta(self.dic[self.infosProfessores[x][0]], self.dic[self.infosProfessores[x][cont]],8)
+                    case 6:#preferencia 5
+                        if(self.infosProfessores[x][cont]!= ''):
+                            self.add_aresta(self.dic[self.infosProfessores[x][0]], self.dic[self.infosProfessores[x][cont]],10)
+                cont+=1
+            
+        #Ligação Discuplina-> superdemanda
+        for x in range(len(self.infosDisciplinas)):
+            self.add_aresta(self.dic[self.infosDisciplinas[x][0]], self.dic[self.infosDisciplinas[len(self.infosDisciplinas)-1][2]], 0, self.infosDisciplinas[x][1])
     #-------------------------------------------------------------------------------
     #Função criada para ler um arquivo no formato CSV
     #-------------------------------------------------------------------------------
@@ -125,10 +148,10 @@ class NetworkProfessor:
             lines = int(len(arq2.read().split(";"))/6) - 1 #Quantidade de linhas sem o cabeçalho     
             
             for _ in range (lines):
-                self.num_vert+=1
 
                 str = arq.readline()
-                str = str.split(";")
+                str = str.split("\n")
+                str = str[0].split(";")
                 self.infosProfessores.append(str)
     
             #Leitura do Arquivo de Disciplinas
@@ -141,15 +164,13 @@ class NetworkProfessor:
             lines = int(len(arq2.read().split(";"))/2) - 1 #Quantidade de linhas sem o cabeçalho 
            
             for _ in range(lines):
-                self.num_vert+=1
 
                 str = arq.readline()
-                str = str.split(";")
+                str = str.split("\n")
+                str = str[0].split(";")
                 self.infosDisciplinas.append(str)
-
-            # print(self.infosDisciplinas)
-            # print(self.infosProfessores)
-            self.makeNelsonSemedoFamosoJogadordoWolves()
+            
+            self.makeNetwork()
 
         except IOError:
             print("Nao foi possivel encontrar ou ler o arquivo!")
