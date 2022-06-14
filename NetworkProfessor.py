@@ -52,6 +52,7 @@ class NetworkProfessor:
     def add_aresta(self, u, v, w = 1, c = 'inf'):
 
         self.arestas.append((u, v, w, c))
+        print(u,v)
         self.mat_adj[u][v] = 1
         self.mat_weight[u][v] = w
         self.mat_cap[u][v] = c
@@ -90,11 +91,11 @@ class NetworkProfessor:
         self.infosProfessores[-1][1] = int(self.infosProfessores[-1][1])
         self.addDic(self.infosProfessores[-1][1], cont)
         cont += 1
-        for x in range(len(self.infosProfessores)):
+        for x in range(len(self.infosProfessores)-1):
             self.addDic(self.infosProfessores[x][0], cont)
             cont += 1
         
-        for x in range(len(self.infosDisciplinas)): 
+        for x in range(len(self.infosDisciplinas)-1): 
             self.addDic(self.infosDisciplinas[x][0],cont)
             cont += 1
             
@@ -104,14 +105,14 @@ class NetworkProfessor:
 
         self.num_vert = len(self.dic)
         self.criaMats()
-
+        print(self.dic)
         #Gerar Network
         #1 - Ligação do SuperOferta
-        for x in range(len(self.infosProfessores)):
+        for x in range(len(self.infosProfessores)-1):
             self.add_aresta(self.dic[self.infosProfessores[-1][1]], self.dic[self.infosProfessores[x][0]], 0, self.infosProfessores[x][1])
            
         #Ligação Professor -> disciplina
-        for x in range(len(self.infosProfessores)):
+        for x in range(len(self.infosProfessores)-1):
             cont = 2
             for _ in range(5):#5 poie é o maximo de disciplinas alocadas a um professor
                 match cont:
@@ -130,10 +131,11 @@ class NetworkProfessor:
                 cont+=1
             
         #Ligação Discuplina-> superdemanda
-        for x in range(len(self.infosDisciplinas)):
-            self.add_aresta(self.dic[self.infosDisciplinas[x][0]], self.dic[self.infosDisciplinas[len(self.infosDisciplinas)-1][2]], 0, self.infosDisciplinas[x][1])
+        for x in range(len(self.infosDisciplinas)-1):
+            self.add_aresta(self.dic[self.infosDisciplinas[x][0]], self.dic[self.infosDisciplinas[len(self.infosDisciplinas)-1][2]], 0, int(self.infosDisciplinas[x][2]))
     #-------------------------------------------------------------------------------
     #Função criada para ler um arquivo no formato CSV
+    
     #-------------------------------------------------------------------------------
     def ler_arquivo(self, nome_arqprof, nome_arqdisc):
         try:
