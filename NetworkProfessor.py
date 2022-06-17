@@ -213,7 +213,8 @@ class NetworkProfessor:
         #-------------------------------------------------------------------------------
 
         return dist,pred
-    def geraCaminho(self,retornos,end):#converte o retorno de bellman ford em um caminho com postos opr arestas uv
+
+    def geraCaminho(self,retornos,end):#converte o retorno de bellman ford em um caminho com postos por arestas uv
         C = []
         u = retornos[1][end]
         C.append(end)
@@ -226,6 +227,7 @@ class NetworkProfessor:
 
         C = list(reversed(C))
         return C
+
     def scm(self, s, t):
 
         F = [[0 for i in range(len(self.mat_adj))] for j in range(len(self.mat_adj))]
@@ -256,9 +258,13 @@ class NetworkProfessor:
 
                 if self.mat_cap[u][v] == 0:
                     self.mat_adj[u][v] = 0
+                    self.mat_weight[u][v] = 0
                     self.arestas.remove((u, v, self.mat_weight[u][v])) #Verificar esta linha
                     
                 if self.mat_adj[v][u] == 0:
+                    self.mat_adj[v][u] = 1
+                    self.mat_cap[v][u] += f
+                    self.mat_weight[v][u] = -self.mat_weight[u][v]
                     self.add_aresta(v,u,-self.mat_weight[v][u],-self.mat_cap[v][u])
                 
             retornos = self.bellmanFord(s, t)
