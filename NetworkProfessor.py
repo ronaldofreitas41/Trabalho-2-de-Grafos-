@@ -1,5 +1,6 @@
 from calendar import c
 from configparser import NoOptionError
+from distutils.log import info
 
 
 class NetworkProfessor:
@@ -56,9 +57,9 @@ class NetworkProfessor:
   #-------------------------------------------------------------------------------
   #Função criada para adicionar aresta com valor default (1) do vértice u ao vértice v
   #-------------------------------------------------------------------------------
-    def add_aresta(self, u, v, w = 1, c = 'inf'):
+    def add_aresta(self, u, v, w = 1, c = float('inf')):
 
-        self.arestas.append((u, v, w, c))
+        self.arestas.append((u, v, w))
         self.mat_adj[u][v] = 1
         self.mat_weight[u][v] = w
         self.mat_cap[u][v] = c
@@ -83,6 +84,7 @@ class NetworkProfessor:
 
                     if v2 == v:
                         self.lista_adj[u].remove((v2, w2))
+                        self.arestas.remove((u,v))
                         break
 
             else:
@@ -115,7 +117,7 @@ class NetworkProfessor:
         #Gerar Network
         #1 - Ligação do SuperOferta
         for x in range(len(self.infosProfessores)-1):
-            self.add_aresta(self.dic[self.infosProfessores[-1][1]], self.dic[self.infosProfessores[x][0]], 0, self.infosProfessores[x][1])
+            self.add_aresta(self.dic[self.infosProfessores[-1][1]], self.dic[self.infosProfessores[x][0]], 0, int(self.infosProfessores[x][1]))
            
         #Ligação Professor -> disciplina
         for x in range(len(self.infosProfessores)-1):
@@ -196,8 +198,8 @@ class NetworkProfessor:
     
         for _ in range(self.num_vert - 1):
             trocou = False
-
-            for (u,v,w,c) in self.arestas:
+            
+            for (u,v,w) in self.arestas:
 
                 if dist[v] >  dist[u]+w:
                     dist[v] = dist[u]+w
@@ -214,16 +216,15 @@ class NetworkProfessor:
     def geraCaminho(self,retornos,end):#converte o retorno de bellman ford em um caminho com postos opr arestas uv
         C = []
         u = retornos[1][end]
-        C.append((u,end))
-        v = u
+        C.append(end)
+        C.append(u)
         while(u != None):
             u = retornos[1][u]
             if(u == None):
                 break
-            C.append((u,v))
+            C.append((u))
 
         C = list(reversed(C))
-        print("C = ",C)
         return C
     def scm(self, s, t):
 
@@ -235,33 +236,32 @@ class NetworkProfessor:
 
             f = float('inf')
 
-            for i in range(1, len(C)):
-                u = C[i - 1]
-                v = C[i]
+            for i in range((len(C)-1)):
+                u = C[i]
+                v = C[i + 1]
 
-                if self.mat_cap[u][v] < f:
+                if self.mat_cap[u][v] < f:# O float aparece aqui pois quando a capaciadade valer inf é considerado uma string
                     f = self.mat_cap[u][v]
 
-            for i in range(1, len(C)):
-                u = C[i - 1]
-                v = C[i]
+            for i in range((len(C)-1)):
+                
+                u = C[i]
+                v = C[i + 1]
 
                 F[u][v] += f
                 self.mat_cap[u][v] -= f
                 self.mat_cap[v][u] += f
-
                 self.list_b[s] -= f
-                self.list_b[t] += f
+                self.list_b[1] += f
 
-                if self.mat_cap == 0:
+                if self.mat_cap[u][v] == 0:
                     self.mat_adj[u][v] = 0
                     self.arestas.remove((u, v, self.mat_weight[u][v])) #Verificar esta linha
-                
+                    
                 if self.mat_adj[v][u] == 0:
-                    self.mat_adj[v][u] = 1
-                    self.arestas.append((v, u, -self.mat_weight[u][v]))#Verificar esta linha
-                    self.mat_weight[v][u] = -(self.mat_weight[u][v])
+                    self.add_aresta(v,u,-self.mat_weight[v][u],-self.mat_cap[v][u])
                 
-            C = self.bellmanFord(s, t)
+            retornos = self.bellmanFord(s, t)
+            C = self.geraCaminho(retornos,t)
         
         return F
